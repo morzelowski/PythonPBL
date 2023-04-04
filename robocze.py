@@ -8,7 +8,7 @@ BODY  = "^"
 FOOD  = "+"
 HEAD  = "O"
 
-n = 5
+n = 20
 BLOCK_SIZE = 800/(n+2)
 score = 3
 snake = []
@@ -19,9 +19,9 @@ next_direction = ""
 running = True
 # Load the images
 fruit_img = pygame.image.load("apple3.png")
-fruit_img = pygame.transform.scale(fruit_img, (BLOCK_SIZE-4, BLOCK_SIZE-4))
+fruit_img = pygame.transform.scale(fruit_img, (BLOCK_SIZE, BLOCK_SIZE))
 head_img = pygame.image.load("head.png")
-head_img = pygame.transform.scale(head_img, (BLOCK_SIZE-4, BLOCK_SIZE-4))
+head_img = pygame.transform.scale(head_img, (BLOCK_SIZE, BLOCK_SIZE))
 
 def init():
 	for i in range(n):
@@ -42,8 +42,8 @@ def drawSnake():
 		if(number == len(snake)):
 			map[element[0]][element[1]] = HEAD
 			r = head_img.get_rect()
-			r.x = element[1]*BLOCK_SIZE+BLOCK_SIZE+2
-			r.y = element[0]*BLOCK_SIZE+BLOCK_SIZE+2
+			r.x = element[1]*BLOCK_SIZE+BLOCK_SIZE
+			r.y = element[0]*BLOCK_SIZE+BLOCK_SIZE
 			screen.blit(head_img, r)
 		else:
 			map[element[0]][element[1]] = BODY
@@ -88,6 +88,7 @@ def step():
 		prev_direction = "RIGHT"
 
 	snake.append([y,x])
+
 	if(y<0 or x<0 or x>=n or y>=n):
 			running = False
 	elif(map[y][x])==FOOD:
@@ -101,17 +102,22 @@ def step():
 	else:
 		drawSnake()
 	if(next_direction != ""):
-		direction = next_direction
-		next_direction = ""
-
-	
+		if(direction=="UP" and next_direction!="DOWN"):
+			direction = next_direction
+		elif(direction=="DOWN" and next_direction!="UP"):
+			direction = next_direction
+		elif(direction=="LEFT" and next_direction!="RIGHT"):
+			direction = next_direction
+		elif(direction=="RIGHT" and next_direction!="LEFT"):
+			direction = next_direction
+	next_direction = ""
 
 
 pygame.init()
 (width, height) = (800, 800)
 screen = pygame.display.set_mode((width, height))
 pygame.display.flip()
-pygame.display.set_caption('SnakePBL')
+pygame.display.set_caption('PythonPBL')
 background_colour = (255,255,255)
 screen.fill(background_colour)
 clock = pygame.time.Clock()
@@ -125,10 +131,9 @@ while True:
 		step()
 		start = time.time()
 
-	# TRZEBA ZROBIC STOS PRZYCISKOW
 	for event in pygame.event.get():
 		if event.type == pygame.KEYDOWN:
-			if(event.key == pygame.K_w or event.key == pygame.K_UP): #and prev_direction != "DOWN"
+			if(event.key == pygame.K_w or event.key == pygame.K_UP):
 				if(prev_direction == "UP" or prev_direction == "DOWN"):
 					next_direction = "UP"
 				else:

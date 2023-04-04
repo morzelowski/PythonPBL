@@ -8,7 +8,7 @@ BODY  = "^"
 FOOD  = "+"
 HEAD  = "O"
 
-n = 5
+n = 20
 BLOCK_SIZE = 800/(n+2)
 score = 3
 snake = []
@@ -17,6 +17,11 @@ direction = "UP"
 prev_direction = "UP"
 next_direction = ""
 running = True
+# Load the images
+fruit_img = pygame.image.load("apple3.png")
+fruit_img = pygame.transform.scale(fruit_img, (BLOCK_SIZE, BLOCK_SIZE))
+head_img = pygame.image.load("head.png")
+head_img = pygame.transform.scale(head_img, (BLOCK_SIZE, BLOCK_SIZE))
 
 def init():
 	for i in range(n):
@@ -36,8 +41,10 @@ def drawSnake():
 	for element in snake:
 		if(number == len(snake)):
 			map[element[0]][element[1]] = HEAD
-			r = pygame.Rect(element[1]*BLOCK_SIZE+BLOCK_SIZE+2, element[0]*BLOCK_SIZE+BLOCK_SIZE+2, BLOCK_SIZE-4, BLOCK_SIZE-4)
-			pygame.draw.rect(screen, (0, 0, 255), r)
+			r = head_img.get_rect()
+			r.x = element[1]*BLOCK_SIZE+BLOCK_SIZE
+			r.y = element[0]*BLOCK_SIZE+BLOCK_SIZE
+			screen.blit(head_img, r)
 		else:
 			map[element[0]][element[1]] = BODY
 			r = pygame.Rect(element[1]*BLOCK_SIZE+BLOCK_SIZE+2, element[0]*BLOCK_SIZE+BLOCK_SIZE+2, BLOCK_SIZE-4, BLOCK_SIZE-4)
@@ -51,9 +58,11 @@ def drawFood():
 		y = random.randrange(n)
 		x = random.randrange(n)
 	map[y][x]=FOOD
-	r = pygame.Rect(x*BLOCK_SIZE+BLOCK_SIZE+2, y*BLOCK_SIZE+BLOCK_SIZE+2, BLOCK_SIZE-4, BLOCK_SIZE-4)
-	pygame.draw.rect(screen, (255, 0, 0), r)
-
+	r = fruit_img.get_rect()
+	r.x = x * BLOCK_SIZE + BLOCK_SIZE + 2
+	r.y = y * BLOCK_SIZE + BLOCK_SIZE + 2
+	screen.blit(fruit_img, r)
+	
 def step():
 	global prev_direction, running, direction, next_direction
 
@@ -79,6 +88,7 @@ def step():
 		prev_direction = "RIGHT"
 
 	snake.append([y,x])
+
 	if(y<0 or x<0 or x>=n or y>=n):
 			running = False
 	elif(map[y][x])==FOOD:
@@ -92,24 +102,27 @@ def step():
 	else:
 		drawSnake()
 	if(next_direction != ""):
-		direction = next_direction
-		next_direction = ""
-
-	
+		if(direction=="UP" and next_direction!="DOWN"):
+			direction = next_direction
+		elif(direction=="DOWN" and next_direction!="UP"):
+			direction = next_direction
+		elif(direction=="LEFT" and next_direction!="RIGHT"):
+			direction = next_direction
+		elif(direction=="RIGHT" and next_direction!="LEFT"):
+			direction = next_direction
+	next_direction = ""
 
 
 pygame.init()
 (width, height) = (800, 800)
 screen = pygame.display.set_mode((width, height))
 pygame.display.flip()
-pygame.display.set_caption('SnakePBL')
+pygame.display.set_caption('PythonPBL')
 background_colour = (255,255,255)
 screen.fill(background_colour)
 clock = pygame.time.Clock()
 init()
 drawFood()
-#map[1][2] = FOOD
-#map[2][1] = FOOD
 
 start = time.time()
 while True:
@@ -118,10 +131,9 @@ while True:
 		step()
 		start = time.time()
 
-	# TRZEBA ZROBIC STOS PRZYCISKOW
 	for event in pygame.event.get():
 		if event.type == pygame.KEYDOWN:
-			if(event.key == pygame.K_w or event.key == pygame.K_UP): #and prev_direction != "DOWN"
+			if(event.key == pygame.K_w or event.key == pygame.K_UP):
 				if(prev_direction == "UP" or prev_direction == "DOWN"):
 					next_direction = "UP"
 				else:
@@ -146,12 +158,11 @@ while True:
 			pygame.quit()
 			running = False
 			# UZYTKOWNIK zamknal, KONIEC POLACZENIA Z SERVEREM
-
 	pygame.display.update()
 	clock.tick(120)
 
 	if(running==False):
-		time.sleep(3)
+		time.sleep(1)
 		pygame.quit()
 		break
 			
